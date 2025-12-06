@@ -8,6 +8,8 @@
 #include <functional>
 #include <algorithm>
 
+#include"loadMap.h"
+
 enum BoundryType {
     PERIODIC
 };
@@ -34,6 +36,8 @@ public:
     void draw(sf::RenderWindow& window);
     void updateTextPosition();  // DODANE
     void setPosition(sf::Vector2f pos);  // DODANE
+
+    LoadMap map;
 };
 
 class Simulation {
