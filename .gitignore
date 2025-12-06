@@ -21,3 +21,5 @@ Makefile
 #to samo co ponizej tylko dla macos xp
 Thumbs.db 
 #to jest dla was zeby zeby nie wrzucalo jakiegos dziwnego pliku z configiem folderu na windows
+
+CMakeLists.txt
