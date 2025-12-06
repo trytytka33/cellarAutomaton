@@ -161,8 +161,8 @@ Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), 
         cellSize = CELL_SIZE;
         gridOffsetX = SIDEBAR_WIDTH + 20;
 
-        if (!font.openFromFile(fontPathArial)) {
-            if (!font.openFromFile(fontPathHelvetica)) {
+        if (!font.openFromFile("Roboto-VariableFont_wdth,wght.ttf")) {
+            if (!font.openFromFile("Roboto-VariableFont_wdth,wght.ttf")) {
                 if (!font.openFromFile("arial.ttf")) {
                     std::cerr << "Nie można załadować czcionki!" << std::endl;
                 }

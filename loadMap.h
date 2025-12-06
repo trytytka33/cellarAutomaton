@@ -8,7 +8,7 @@ private:
 
 public:
 	LoadMap(int width, int height);
-
+	LoadMap();
 	sf::Sprite getBackground() {
 		return background;
 	}
