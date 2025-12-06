@@ -1,20 +1,31 @@
-# You might want to change some of these versions
-cmake_minimum_required(VERSION 3.10)
-
-project(cellarAutomaton)
+cmake_minimum_required(VERSION 3.16)
+project(VirusSpreading LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(SFML 3 COMPONENTS Graphics Window System REQUIRED)
 
-find_package(SFML 3.0.2 COMPONENTS Graphics Window System REQUIRED)
-
-# Create the executable make sure all cpp files are here
-add_executable(cellar_sim 
-    main.cpp 
-    simulation.cpp
-    loadMap.cpp
+set(SOURCES 
+    src/Simulation.cpp 
+    src/main.cpp 
+    src/LoadMap.cpp
 )
 
-# This handles linking AND include paths automatically.
-target_link_libraries(cellar_sim SFML::Graphics SFML::Window SFML::System)
+set(HEADERS 
+    header/Simulation.h 
+    header/LoadMap.h
+)
+
+# Listing ${HEADERS} here is good practice; it lets IDEs (like VS or CLion) see the files.
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+# This tells the compiler to look inside the "header" folder when resolving #includes.
+target_include_directories(${PROJECT_NAME} PRIVATE header)
+
+# Link SFML
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    SFML::Graphics
+    SFML::Window
+    SFML::System
+)
