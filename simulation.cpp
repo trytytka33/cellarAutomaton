@@ -152,7 +152,8 @@ Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), 
           panelHeight(0),
           sidebarWidth(SIDEBAR_WIDTH),
           windowWidth(WINDOW_WIDTH),
-          windowHeight(WINDOW_HEIGHT) 
+          windowHeight(WINDOW_HEIGHT),
+          map(WINDOW_WIDTH, WINDOW_HEIGHT)
      {
           window.setFramerateLimit(60);
         srand(static_cast<unsigned>(time(nullptr)));
@@ -461,6 +462,8 @@ void Simulation::draw()
 {
     window.clear(sf::Color(245, 245, 250));
 
+    window.draw(map.getBackground());
+  
     sf::RectangleShape sidebar({static_cast<float>(sidebarWidth), static_cast<float>(windowHeight)});
     sidebar.setPosition({0, 0});
     sidebar.setFillColor(sf::Color(230, 230, 235));
