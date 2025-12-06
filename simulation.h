@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #include"loadMap.h"
-#include "fontPaths.h"
+#include "config.h"
 
 enum BoundryType {
     PERIODIC
