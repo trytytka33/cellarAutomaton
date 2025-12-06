@@ -8,7 +8,7 @@
 #include <functional>
 #include <algorithm>
 
-#include"loadMap.h"
+#include"LoadMap.h"
 #include "config.h"
 
 enum BoundryType {
