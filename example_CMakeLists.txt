@@ -1,3 +1,4 @@
+# You might want to change some of these versions
 cmake_minimum_required(VERSION 3.10)
 
 project(cellarAutomaton)
@@ -5,16 +6,15 @@ project(cellarAutomaton)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 1. FIX: Capitalize the component names (Graphics, Window, System)
+
 find_package(SFML 3.0.2 COMPONENTS Graphics Window System REQUIRED)
 
-# 2. Create the executable
+# Create the executable make sure all cpp files are here
 add_executable(cellar_sim 
     main.cpp 
     simulation.cpp
     loadMap.cpp
 )
 
-# 3. FIX: Use the new SFML:: namespace targets
 # This handles linking AND include paths automatically.
 target_link_libraries(cellar_sim SFML::Graphics SFML::Window SFML::System)
