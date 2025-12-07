@@ -1,17 +1,33 @@
-cmake_minimum_required(VERSION 3.16)
-project(VirusSpreading LANGUAGES CXX)
+# CMakeList.txt: plik projektu CMake najwy¿szego poziomu, wykonaj konfiguracjê globaln¹
+# i uwzglêdnij podprojekty w tym miejscu.
+#
+cmake_minimum_required (VERSION 3.8)
 
-find_package(SFML 3 COMPONENTS Graphics Window System REQUIRED)
+# W³¹cz prze³adowywanie kodu XAML na gor¹co dla kompilatorów MSVC, jeœli jest to obs³ugiwane.
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
 
-set(CMAKE_CXX_STANDARD 17)
+project ("VirusSpread")
 
-set (SOURCES simulation.cpp main.cpp)
-set (HEADERS simulation.h)
+set(SFML_INCLUDE_DIR "D:\\kozack rzeczy\\SFML\\SFML-3.0.0\\include")
+set(SFML_LIBRARY_DIR "D:\\kozack rzeczy\\SFML\\SFML-3.0.0\\lib")
+set(SFML_DIR "D:\\kozack rzeczy\\SFML\\SFML-3.0.0\\lib\\cmake\\SFML")
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+link_directories(SFML_LIBRARY_DIR )
+include_directories(SFML_INCLUDE_DIR )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE 
-    SFML::Graphics
-    SFML::Window
-    SFML::System
+find_package(SFML COMPONENTS Graphics Window System REQUIRED)
+
+add_executable (VirusSpread "main.cpp" "simulation.cpp" "loadMap.cpp")
+
+target_link_libraries(VirusSpread PRIVATE 
+    SFML::Graphics 
+    SFML::Window 
+    SFML::System 
 )
+
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  set_property(TARGET VirusSpread PROPERTY CXX_STANDARD 20)
+endif()

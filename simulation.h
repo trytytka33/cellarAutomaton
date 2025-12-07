@@ -37,7 +37,6 @@ public:
     void updateTextPosition();  // DODANE
     void setPosition(sf::Vector2f pos);  // DODANE
 
-    LoadMap map;
 };
 
 class Simulation {
@@ -62,6 +61,8 @@ private:
     std::string currentMapName;
     int panelHeight;  // DODANE
     float gridDisplayHeight;  // DODANE
+
+    LoadMap map;
     
 public:
     Simulation();
