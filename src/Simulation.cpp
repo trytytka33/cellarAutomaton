@@ -1,4 +1,5 @@
-#include "simulation.h"
+#include "Simulation.h"
+#include "config.h"
 #include <iostream>
 #include <cmath>
 
@@ -492,43 +493,39 @@ void Simulation::draw()
                 {
                     sf::CircleShape cell(cellSize / 2.3f);
                     cell.setPosition({centerX - cellSize / 2.3f, centerY - cellSize / 2.3f});
-                    cell.setFillColor(sf::Color(220, 53, 69));
+                    cell.setFillColor(sf::Color(247, 101, 101));
                     window.draw(cell);
-                }
-                else if (hash == 1)
-                {
-                    sf::CircleShape cell(cellSize / 2.5f, 6);
-                    cell.setPosition({centerX - cellSize / 2.5f, centerY - cellSize / 2.5f});
-                    cell.setFillColor(sf::Color(231, 76, 60));
-                    cell.setRotation(sf::degrees(30));
-                    window.draw(cell);
-                }
-                else if (hash == 2)
+                } else if (hash == 1)
+                 {
+                     sf::CircleShape cell(cellSize / 2.5f, 6);
+                     cell.setPosition({centerX - cellSize / 2.5f, centerY - cellSize / 2.5f});
+                     cell.setFillColor(sf::Color(107, 17, 17));
+                     cell.setRotation(sf::degrees(90));
+                     window.draw(cell);
+                 } else if (hash == 2)
                 {
                     sf::ConvexShape cell;
                     cell.setPointCount(5);
-                    float size = cellSize / 2.2f;
+                    float size = cellSize / 2.0f;
+         
                     cell.setPoint(0, sf::Vector2f(centerX, centerY - size));
                     cell.setPoint(1, sf::Vector2f(centerX + size * 0.95f, centerY - size * 0.31f));
                     cell.setPoint(2, sf::Vector2f(centerX + size * 0.59f, centerY + size * 0.81f));
                     cell.setPoint(3, sf::Vector2f(centerX - size * 0.59f, centerY + size * 0.81f));
                     cell.setPoint(4, sf::Vector2f(centerX - size * 0.95f, centerY - size * 0.31f));
-                    cell.setFillColor(sf::Color(192, 57, 43));
+                    cell.setFillColor(sf::Color(139, 0, 0));
                     window.draw(cell);
-                }
-                else if (hash == 3)
+                } else if (hash == 3)
                 {
-                    sf::CircleShape cell(cellSize / 2.4f, 8);
+                    sf::CircleShape cell(cellSize / 2.6f, 3);
                     cell.setPosition({centerX - cellSize / 2.4f, centerY - cellSize / 2.4f});
-                    cell.setFillColor(sf::Color(239, 68, 68));
+                    cell.setFillColor(sf::Color(224, 11, 11));
                     window.draw(cell);
-                }
-                else
+                } else
                 {
                     sf::CircleShape cell(cellSize / 2.6f, 4);
                     cell.setPosition({centerX - cellSize / 2.6f, centerY - cellSize / 2.6f});
-                    cell.setFillColor(sf::Color(185, 50, 58));
-                    cell.setRotation(sf::degrees(45));
+                    cell.setFillColor(sf::Color(250, 132, 132));
                     window.draw(cell);
                 }
             }

@@ -11,6 +11,18 @@ endif()
 
 project ("VirusSpread")
 
+set(SOURCES 
+    src/Simulation.cpp 
+    src/main.cpp 
+    src/LoadMap.cpp
+)
+
+set(HEADERS 
+    header/Simulation.h 
+    header/LoadMap.h
+)
+
+
 set(SFML_INCLUDE_DIR "D:\\kozack rzeczy\\SFML\\SFML-3.0.0\\include")
 set(SFML_LIBRARY_DIR "D:\\kozack rzeczy\\SFML\\SFML-3.0.0\\lib")
 set(SFML_DIR "D:\\kozack rzeczy\\SFML\\SFML-3.0.0\\lib\\cmake\\SFML")
@@ -20,7 +32,9 @@ include_directories(SFML_INCLUDE_DIR )
 
 find_package(SFML COMPONENTS Graphics Window System REQUIRED)
 
-add_executable (VirusSpread "main.cpp" "simulation.cpp" "loadMap.cpp")
+add_executable (VirusSpread ${SOURCES} ${HEADERS})
+
+target_include_directories(VirusSpread PRIVATE header)
 
 target_link_libraries(VirusSpread PRIVATE 
     SFML::Graphics 

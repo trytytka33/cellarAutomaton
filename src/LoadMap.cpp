@@ -1,4 +1,4 @@
-#include"loadMap.h"
+#include "LoadMap.h"
 
 LoadMap::LoadMap(int width, int height) : background(map) {
 	try {
@@ -9,4 +9,5 @@ LoadMap::LoadMap(int width, int height) : background(map) {
 	}
 
 	background.setTexture(map, true);
+
 }

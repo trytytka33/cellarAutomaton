@@ -8,7 +8,8 @@
 #include <functional>
 #include <algorithm>
 
-#include"loadMap.h"
+#include"LoadMap.h"
+#include "config.h"
 
 enum BoundryType {
     PERIODIC
@@ -61,9 +62,7 @@ private:
     std::string currentMapName;
     int panelHeight;  // DODANE
     float gridDisplayHeight;  // DODANE
-
     LoadMap map;
-    
 public:
     Simulation();
     void setCellAlive(int x, int y, bool alive);

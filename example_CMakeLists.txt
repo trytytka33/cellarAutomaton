@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.16)
+project(VirusSpreading LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(SFML 3 COMPONENTS Graphics Window System REQUIRED)
+
+set(SOURCES 
+    src/Simulation.cpp 
+    src/main.cpp 
+    src/LoadMap.cpp
+)
+
+set(HEADERS 
+    header/Simulation.h 
+    header/LoadMap.h
+)
+
+# Listing ${HEADERS} here is good practice; it lets IDEs (like VS or CLion) see the files.
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+# This tells the compiler to look inside the "header" folder when resolving #includes.
+target_include_directories(${PROJECT_NAME} PRIVATE header)
+
+# Link SFML
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    SFML::Graphics
+    SFML::Window
+    SFML::System
+)
