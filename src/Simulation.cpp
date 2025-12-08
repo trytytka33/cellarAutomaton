@@ -21,7 +21,7 @@ Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), 
           sidebarWidth(SIDEBAR_WIDTH),
           windowWidth(WINDOW_WIDTH),
           windowHeight(WINDOW_HEIGHT),
-          map(WINDOW_WIDTH, WINDOW_HEIGHT)
+          map(1280, 792)
      {
           window.setFramerateLimit(60);
         srand(static_cast<unsigned>(time(nullptr)));
@@ -344,7 +344,7 @@ void Simulation::draw()
     sf::RectangleShape gridBackground({SPACE_WIDTH * cellSize, SPACE_HEIGHT * cellSize});
     gridBackground.setPosition({gridOffsetX, 20});
     gridBackground.setFillColor(sf::Color(255, 255, 255));
-    window.draw(gridBackground);
+    //window.draw(gridBackground);
 
     for (int y = 0; y < SPACE_HEIGHT; y++)
     {
