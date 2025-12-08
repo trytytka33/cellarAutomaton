@@ -15,11 +15,13 @@ set(SOURCES
     src/Simulation.cpp 
     src/main.cpp 
     src/LoadMap.cpp
+    src/Button.cpp
 )
 
 set(HEADERS 
     header/Simulation.h 
     header/LoadMap.h
+    header/Button.h
 )
 
 

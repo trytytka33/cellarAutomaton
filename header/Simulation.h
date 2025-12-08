@@ -10,6 +10,7 @@
 
 #include"LoadMap.h"
 #include "config.h"
+#include"Button.h"
 
 enum BoundryType {
     PERIODIC
@@ -17,27 +18,6 @@ enum BoundryType {
 
 enum Rule {
     CONWAY
-};
-
-class Button {
-public:
-    sf::RectangleShape shape;
-    sf::Text text;
-    sf::Color normalColor;
-    sf::Color hoverColor;
-    sf::Color pressedColor;
-    bool isHovered;
-    bool isPressed;
-    std::function<void()> onClick;
-
-    Button(sf::Vector2f pos, sf::Vector2f size, const std::string& label, 
-           sf::Font& font, std::function<void()> callback);
-    void handleEvent(const sf::Event& event, const sf::RenderWindow& window);
-    void update();
-    void draw(sf::RenderWindow& window);
-    void updateTextPosition();  // DODANE
-    void setPosition(sf::Vector2f pos);  // DODANE
-
 };
 
 class Simulation {
