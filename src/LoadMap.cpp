@@ -10,5 +10,5 @@ LoadMap::LoadMap(int width, int height) : background(map) {
 
 	background.setTexture(map, true);
 	background.setScale({0.5f, 0.5f});
-	background.setPosition({(float)width/5, (float)height/8});
+	background.setPosition({(float)width/8, (float)height/8});
 }

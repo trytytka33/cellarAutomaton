@@ -3,10 +3,10 @@
 #include <iostream>
 #include <cmath>
 
-const int SPACE_WIDTH = 100;
+const int SPACE_WIDTH = 150;
 const int SPACE_HEIGHT = 100;
 const int CELL_SIZE = 6;
-const int SIDEBAR_WIDTH = 250;
+const int SIDEBAR_WIDTH = 140;
 const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE + SIDEBAR_WIDTH + 50;
 const int WINDOW_HEIGHT = SPACE_HEIGHT * CELL_SIZE + 40;
 
@@ -41,10 +41,10 @@ Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), 
 }
 
 void Simulation::initButtons() {
-    float buttonWidth = 200;
+    float buttonWidth = 100;
     float buttonHeight = 42;
     float spacing = 12;
-    float startX = 25;
+    float startX = 20;
     float startY = 30;
 
     if (!buttons.empty()) {
@@ -341,9 +341,9 @@ void Simulation::draw()
         button.draw(window);
     }
 
-    sf::RectangleShape gridBackground({SPACE_WIDTH * cellSize, SPACE_HEIGHT * cellSize});
-    gridBackground.setPosition({gridOffsetX, 20});
-    gridBackground.setFillColor(sf::Color(255, 255, 255));
+    //sf::RectangleShape gridBackground({SPACE_WIDTH * cellSize, SPACE_HEIGHT * cellSize});
+    //gridBackground.setPosition({gridOffsetX, 20});
+    //gridBackground.setFillColor(sf::Color(255, 255, 255));
     //window.draw(gridBackground);
 
     for (int y = 0; y < SPACE_HEIGHT; y++)
