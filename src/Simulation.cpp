@@ -7,8 +7,8 @@ const int SPACE_WIDTH = 150;
 const int SPACE_HEIGHT = 100;
 const int CELL_SIZE = 6;
 const int SIDEBAR_WIDTH = 140;
-const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE + SIDEBAR_WIDTH + 50;
-const int WINDOW_HEIGHT = SPACE_HEIGHT * CELL_SIZE + 40;
+const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE; // + SIDEBAR_WIDTH + 50;
+const int WINDOW_HEIGHT = SPACE_HEIGHT * CELL_SIZE; // + 40;
 
 Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), "Game of Life - Virus Spread", sf::Style::Default),
           grid(SPACE_HEIGHT, std::vector<bool>(SPACE_WIDTH, false)),
@@ -21,14 +21,16 @@ Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), 
           sidebarWidth(SIDEBAR_WIDTH),
           windowWidth(WINDOW_WIDTH),
           windowHeight(WINDOW_HEIGHT),
-          map(1280, 792)
+          map(1280, 792),
+          obstacles(SPACE_HEIGHT, std::vector<bool>(SPACE_WIDTH, false))
      {
           window.setFramerateLimit(60);
         srand(static_cast<unsigned>(time(nullptr)));
+        // ???
         gridDisplayHeight = windowHeight;
         cellSize = CELL_SIZE;
         gridOffsetX = SIDEBAR_WIDTH + 20;
-
+        // ???
         if (!font.openFromFile(fontPathArial)) {
             if (!font.openFromFile(fontPathHelvetica)) {
                 if (!font.openFromFile("arial.ttf")) {
@@ -36,7 +38,9 @@ Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), 
                 }
             }
         }
-        
+        // inicjalizacja granic
+        obstacles = map.initObstacles(SPACE_WIDTH, SPACE_HEIGHT);
+
         initButtons();
 }
 
@@ -350,6 +354,7 @@ void Simulation::draw()
     {
         for (int x = 0; x < SPACE_WIDTH; x++)
         {
+            
             if (grid[y][x])
             {
                 int hash = (x * 73 + y * 31) % 5;
@@ -362,7 +367,9 @@ void Simulation::draw()
                     cell.setPosition({centerX - cellSize / 2.3f, centerY - cellSize / 2.3f});
                     cell.setFillColor(sf::Color(247, 101, 101));
                     window.draw(cell);
-                } else if (hash == 1)
+                } 
+                // ten sie zle wyswietla dla (x,0)
+                else if (hash == 1)
                  {
                      sf::CircleShape cell(cellSize / 2.5f, 6);
                      cell.setPosition({centerX - cellSize / 2.5f, centerY - cellSize / 2.5f});
@@ -388,13 +395,24 @@ void Simulation::draw()
                     cell.setPosition({centerX - cellSize / 2.4f, centerY - cellSize / 2.4f});
                     cell.setFillColor(sf::Color(224, 11, 11));
                     window.draw(cell);
-                } else
+                } 
+                else
                 {
                     sf::CircleShape cell(cellSize / 2.6f, 4);
                     cell.setPosition({centerX - cellSize / 2.6f, centerY - cellSize / 2.6f});
                     cell.setFillColor(sf::Color(250, 132, 132));
                     window.draw(cell);
                 }
+            }
+
+            // rysowanie granic
+            if (obstacles[y][x]) {
+                float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
+                float centerY = 20 + y * cellSize + cellSize / 2.0f;
+                sf::CircleShape cell(cellSize / 2.3f);
+                cell.setPosition({centerX - cellSize / 2.3f, centerY - cellSize / 2.3f});
+                cell.setFillColor(sf::Color(0, 0, 0));
+                window.draw(cell);
             }
         }
     }
@@ -417,6 +435,9 @@ void Simulation::draw()
 
     window.display();
 }
+
+
+
 
 void Simulation::run()
 {
