@@ -59,7 +59,7 @@ public:
     void run();
     void initButtons();
     void updateWindowDimensions();  // DODANE
-    bool loadMapFromFile(const std::string& filename);
+    // bool loadMapFromFile(const std::string& filename); ???
     
     void onStartStop();
     void onClear();
