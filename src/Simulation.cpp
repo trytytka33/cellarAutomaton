@@ -5,7 +5,7 @@
 
 const int SPACE_WIDTH = 150;
 const int SPACE_HEIGHT = 100;
-const int CELL_SIZE = 6;
+const int CELL_SIZE = 5;
 const int SIDEBAR_WIDTH = 140;
 const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE; // + SIDEBAR_WIDTH + 50;
 const int WINDOW_HEIGHT = SPACE_HEIGHT * CELL_SIZE; // + 40;
@@ -132,7 +132,7 @@ void Simulation::updateWindowDimensions()
 
 void Simulation::toggleCell(int x, int y)
 {
-    if (x >= 0 && x < SPACE_WIDTH && y >= 0 && y < SPACE_HEIGHT)
+    if (x >= 0 && x < SPACE_WIDTH && y >= 0 && y < SPACE_HEIGHT && !obstacles[y][x])
     {
         grid[y][x] = !grid[y][x];
     }
@@ -234,7 +234,7 @@ void Simulation::handleInput()
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             int gridX = static_cast<int>((mousePos.x - gridOffsetX) / cellSize);
             int gridY = static_cast<int>((mousePos.y - 20) / cellSize);
-            if (gridY >= 0 && gridY < SPACE_HEIGHT && gridX >= 0 && gridX < SPACE_WIDTH)
+            if (gridY >= 0 && gridY < SPACE_HEIGHT && gridX >= 0 && gridX < SPACE_WIDTH && !obstacles[gridY][gridX])
             {
                 toggleCell(gridX, gridY);
             }
@@ -246,7 +246,7 @@ void Simulation::handleInput()
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         int gridX = static_cast<int>((mousePos.x - gridOffsetX) / cellSize);
         int gridY = static_cast<int>((mousePos.y - 20) / cellSize);
-        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT)
+        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT && !obstacles[gridY][gridX])
         {
             grid[gridY][gridX] = true;
         }
@@ -280,7 +280,7 @@ int Simulation::countNeighbors(int x, int y)
             }
             if (nowy_x >= 0 && nowy_x < SPACE_WIDTH && nowy_y >= 0 && nowy_y < SPACE_HEIGHT)
             {
-                if (grid[nowy_y][nowy_x])
+                if (grid[nowy_y][nowy_x] && !obstacles[nowy_y][nowy_x])
                     count++;
             }
         }
@@ -334,7 +334,7 @@ void Simulation::draw()
 {
     window.clear(sf::Color(245, 245, 250));
 
-    window.draw(map.getBackground());
+    //window.draw(map.getBackground());
   
     sf::RectangleShape sidebar({static_cast<float>(sidebarWidth), static_cast<float>(windowHeight)});
     sidebar.setPosition({0, 0});
@@ -355,7 +355,7 @@ void Simulation::draw()
         for (int x = 0; x < SPACE_WIDTH; x++)
         {
             
-            if (grid[y][x])
+            if (grid[y][x] && !obstacles[y][x])
             {
                 int hash = (x * 73 + y * 31) % 5;
                 float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;

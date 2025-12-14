@@ -54,11 +54,11 @@ std::vector<std::vector<bool>> LoadMap::initObstacles(int width, int height) {
 			for (int py = startY; py < endY; py++) {
                 for (int px = startX; px < endX; px++) {
 					sf::Color pixel = mapImage.getPixel({(unsigned int)px, (unsigned int)py});
-					// if (pixel.a == 0) { // Opcja 1, tylko przezroczyste sa granica
+					//if (pixel.a == 0) { // Opcja 1, tylko przezroczyste sa granica
 					if (pixel.r <30 && pixel.a != 0){ // Opcja 2, tylko granice bez przezroczystych
                         isObstacle = true;
                         break;
-                    }
+					}
 
 				}
 				if (isObstacle) break;
