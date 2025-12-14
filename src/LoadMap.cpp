@@ -17,8 +17,8 @@ LoadMap::LoadMap(int width, int height) : background(map) {
 }
 
 // funkcja do inicjalizacji granicy macierzy
-std::vector<std::vector<bool>> LoadMap::initObstacles(int width, int height) {
-	std::vector<std::vector<bool>> tempGrid(height, std::vector<bool>(width, false));
+std::vector<std::vector<int>> LoadMap::initObstacles(int width, int height) {
+	std::vector<std::vector<int>> tempGrid(height, std::vector<int>(width, 0));
 	sf::Vector2u imgSize = mapImage.getSize();
 	// Opcja 1 - Branie srodkowego piksela
 	/*
@@ -41,7 +41,7 @@ std::vector<std::vector<bool>> LoadMap::initObstacles(int width, int height) {
     float stepY = (float)imgSize.y / height;
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			bool isObstacle = false;
+			int isObstacle = 0;
 			// zakres dla konkretnej komorki ktora bedzie sprawdzana
 			int startX = (int)(x * stepX);
             int endX   = (int)((x + 1) * stepX);
@@ -55,13 +55,17 @@ std::vector<std::vector<bool>> LoadMap::initObstacles(int width, int height) {
                 for (int px = startX; px < endX; px++) {
 					sf::Color pixel = mapImage.getPixel({(unsigned int)px, (unsigned int)py});
 					//if (pixel.a == 0) { // Opcja 1, tylko przezroczyste sa granica
-					if (pixel.r <30 && pixel.a != 0){ // Opcja 2, tylko granice bez przezroczystych
-                        isObstacle = true;
+					if (pixel.r <30 && pixel.a != 0) { // Opcja 2, tylko granice bez przezroczystych
+                        isObstacle = 1;
                         break;
+					}
+					else if (pixel.a == 0) {
+						isObstacle = 2;
+						break;
 					}
 
 				}
-				if (isObstacle) break;
+				if (isObstacle == 1 || isObstacle == 2) break;
 			}
 			tempGrid[y][x] = isObstacle;
 		}

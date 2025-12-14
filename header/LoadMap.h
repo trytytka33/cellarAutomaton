@@ -15,5 +15,5 @@ public:
 		return background;
 	}
 	// funkcja do inicjalizacji macierzy granicy
-	std::vector<std::vector<bool>> initObstacles(int width, int height);
+	std::vector<std::vector<int>> initObstacles(int width, int height); // 0 - teren, 1 - granice, 2 - poza granicami
 };

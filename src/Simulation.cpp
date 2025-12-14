@@ -3,26 +3,27 @@
 #include <iostream>
 #include <cmath>
 
-const int SPACE_WIDTH = 150;
-const int SPACE_HEIGHT = 100;
+const int SPACE_WIDTH = 250;
+const int SPACE_HEIGHT = 200;
 const int CELL_SIZE = 5;
 const int SIDEBAR_WIDTH = 140;
 const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE; // + SIDEBAR_WIDTH + 50;
 const int WINDOW_HEIGHT = SPACE_HEIGHT * CELL_SIZE; // + 40;
 
-Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), "Game of Life - Virus Spread", sf::Style::Default),
-          grid(SPACE_HEIGHT, std::vector<bool>(SPACE_WIDTH, false)),
-          isRunning(false),
-          updateInterval(0.1f),
-          boundryType(PERIODIC),
-          rule(CONWAY),
-          nrCykluSymulacji(0),
-          panelHeight(0),
-          sidebarWidth(SIDEBAR_WIDTH),
-          windowWidth(WINDOW_WIDTH),
-          windowHeight(WINDOW_HEIGHT),
-          map(1280, 792),
-          obstacles(SPACE_HEIGHT, std::vector<bool>(SPACE_WIDTH, false))
+Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), "Game of Life - Virus Spread", sf::Style::Default),
+        grid(SPACE_HEIGHT, std::vector<bool>(SPACE_WIDTH, false)),
+        isRunning(false),
+        updateInterval(0.1f),
+        boundryType(PERIODIC),
+        rule(CONWAY),
+        nrCykluSymulacji(0),
+        panelHeight(0),
+        sidebarWidth(SIDEBAR_WIDTH),
+        windowWidth(WINDOW_WIDTH),
+        windowHeight(WINDOW_HEIGHT),
+        map(1280, 792),
+        obstacles(SPACE_HEIGHT, std::vector<int>(SPACE_WIDTH, 0)),
+        conditions(SPACE_HEIGHT * SPACE_WIDTH)
      {
           window.setFramerateLimit(60);
         srand(static_cast<unsigned>(time(nullptr)));
@@ -40,6 +41,19 @@ Simulation::Simulation() : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), 
         }
         // inicjalizacja granic
         obstacles = map.initObstacles(SPACE_WIDTH, SPACE_HEIGHT);
+
+        for (int y = 0; y < SPACE_HEIGHT; ++y) {
+            for (int x = 0; x < SPACE_WIDTH; ++x) {
+                if (obstacles[y][x] == 1) {
+                    float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
+                    float centerY = 20 + y * cellSize + cellSize / 2.0f;
+                    sf::CircleShape cell(cellSize / 2.3f);
+                    cell.setPosition({ centerX - cellSize / 2.3f, centerY - cellSize / 2.3f });
+                    cell.setFillColor(sf::Color(0, 0, 0));
+                    borderElements.push_back(cell);
+                }
+            }
+        }
 
         initButtons();
 }
@@ -246,7 +260,7 @@ void Simulation::handleInput()
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         int gridX = static_cast<int>((mousePos.x - gridOffsetX) / cellSize);
         int gridY = static_cast<int>((mousePos.y - 20) / cellSize);
-        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT && !obstacles[gridY][gridX])
+        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT && obstacles[gridY][gridX] == 0)
         {
             grid[gridY][gridX] = true;
         }
@@ -280,7 +294,7 @@ int Simulation::countNeighbors(int x, int y)
             }
             if (nowy_x >= 0 && nowy_x < SPACE_WIDTH && nowy_y >= 0 && nowy_y < SPACE_HEIGHT)
             {
-                if (grid[nowy_y][nowy_x] && !obstacles[nowy_y][nowy_x])
+                if (grid[nowy_y][nowy_x] && obstacles[nowy_y][nowy_x] == 0)
                     count++;
             }
         }
@@ -354,8 +368,7 @@ void Simulation::draw()
     {
         for (int x = 0; x < SPACE_WIDTH; x++)
         {
-            
-            if (grid[y][x] && !obstacles[y][x])
+            if (grid[y][x] && obstacles[y][x] == 0)
             {
                 int hash = (x * 73 + y * 31) % 5;
                 float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
@@ -404,20 +417,15 @@ void Simulation::draw()
                     window.draw(cell);
                 }
             }
-
-            // rysowanie granic
-            if (obstacles[y][x]) {
-                float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
-                float centerY = 20 + y * cellSize + cellSize / 2.0f;
-                sf::CircleShape cell(cellSize / 2.3f);
-                cell.setPosition({centerX - cellSize / 2.3f, centerY - cellSize / 2.3f});
-                cell.setFillColor(sf::Color(0, 0, 0));
-                window.draw(cell);
-            }
         }
     }
 
-    for (int y = 0; y <= SPACE_HEIGHT; y++)
+    //rysowanie granic
+    for (int i = 0; i < borderElements.size(); ++i) {
+        window.draw(borderElements[i]);
+    }
+
+    /*for (int y = 0; y <= SPACE_HEIGHT; y++)
     {
         sf::RectangleShape line({SPACE_WIDTH * cellSize, 1});
         line.setPosition({gridOffsetX, 20 + y * cellSize});
@@ -431,7 +439,7 @@ void Simulation::draw()
         line.setPosition({gridOffsetX + x * cellSize, 20});
         line.setFillColor(sf::Color(220, 220, 225));
         window.draw(line);
-    }
+    }*/
 
     window.display();
 }

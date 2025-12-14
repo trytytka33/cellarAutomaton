@@ -20,11 +20,27 @@ enum Rule {
     CONWAY
 };
 
+enum Terrain {
+    CITY,
+    MOUNTAINS,
+    DESSERT,
+    FOREST,
+    LAKE
+};
+
+class Conditions {
+    float population;
+    float avgTemperature;
+    Terrain terrain;
+};
+
 class Simulation {
 private:
     sf::RenderWindow window;
     std::vector<std::vector<bool>> grid;
-    std::vector<std::vector<bool>> obstacles;
+    std::vector<std::vector<int>> obstacles;
+    std::vector<Conditions> conditions;
+    std::vector<sf::CircleShape> borderElements;
     bool isRunning;
     sf::Clock clock;
     float updateInterval;
