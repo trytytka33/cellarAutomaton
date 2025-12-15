@@ -53,6 +53,8 @@ class State {
 class Simulation {
 private:
     sf::RenderWindow window;
+    sf::Text statsText;
+    sf::RectangleShape statsPanel;
     std::vector<std::vector<bool>> grid;
     std::vector<std::vector<int>> obstacles;
     std::vector<Conditions> conditions;
@@ -77,6 +79,7 @@ private:
     float gridDisplayHeight;  
     LoadMap map;
     std::vector<State> states; // new 
+    int aliveCells;
 public:
     Simulation();
     void setCellAlive(int x, int y, bool alive);
@@ -91,6 +94,8 @@ public:
     void update();
     void draw();
     void run();
+    void initStats();
+    void updateStats();
     void initButtons();
     void updateWindowDimensions(); 
     void loadStatesFromFile(std::string fName);
