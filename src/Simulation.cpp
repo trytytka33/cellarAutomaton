@@ -7,7 +7,7 @@
 #include <sstream>
 
 const int SPACE_WIDTH = 250;
-const int SPACE_HEIGHT = 200;
+const int SPACE_HEIGHT = 170;
 const int CELL_SIZE = 5;
 const int SIDEBAR_WIDTH = 140;
 const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE + 150; // + SIDEBAR_WIDTH + 50;
@@ -46,18 +46,6 @@ Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT })
         // inicjalizacja granic
         obstacles = map.initObstacles(SPACE_WIDTH, SPACE_HEIGHT);
 
-        for (int y = 0; y < SPACE_HEIGHT; ++y) {
-            for (int x = 0; x < SPACE_WIDTH; ++x) {
-                if (obstacles[y][x] == 1) {
-                    float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
-                    float centerY = 20 + y * cellSize + cellSize / 2.0f;
-                    sf::CircleShape cell(cellSize / 2.3f);
-                    cell.setPosition({ centerX - cellSize / 2.3f, centerY - cellSize / 2.3f });
-                    cell.setFillColor(sf::Color(0, 0, 0));
-                    borderElements.push_back(cell);
-                }
-            }
-        }
         initButtons();
         loadStatesFromFile("states-data.txt");
     
@@ -67,6 +55,67 @@ void Simulation::addState(const std::string& name, const std::vector<sf::Vector2
     Conditions cond(population, avgTemperature, terrain);
     State state(name, points, cond);
     states.push_back(state);
+}
+
+void Simulation::addConditions(const State& state) {
+    
+    if (state.getPoints().empty()) return;
+    sf::Vector2f seed = state.getPoints()[0];
+
+    // Pobieramy warunki, które mamy przypisać temu obszarowi
+    Conditions condToApply = state.getConditions();
+
+    int startX = static_cast<int>(seed.x);
+    int startY = static_cast<int>(seed.y);
+
+    // Zabezpieczenia: czy punkt jest na mapie?
+    if (startX < 0 || startX >= SPACE_WIDTH || startY < 0 || startY >= SPACE_HEIGHT) return;
+
+    // Czy nie zaczynamy na granicy? (1 = granica, 2 = ocean/poza mapą)
+    if (obstacles[startY][startX] != 0) return;
+
+    // Obliczamy indeks w tablicy 1D
+    int startIndex = startY * SPACE_WIDTH + startX;
+
+    // --- ALGORYTM BFS (Flood Fill) ---
+    std::queue<sf::Vector2i> q;
+    q.push({ startX, startY });
+
+    // Przypisujemy warunki w punkcie startowym
+    conditions[startIndex] = condToApply;
+
+    // Wektory przesunięć (Góra, Dół, Prawo, Lewo)
+    int dx[] = { 0, 0, 1, -1 };
+    int dy[] = { 1, -1, 0, 0 };
+
+    while (!q.empty()) {
+        sf::Vector2i curr = q.front();
+        q.pop();
+
+        for (int i = 0; i < 4; ++i) {
+            int nx = curr.x + dx[i];
+            int ny = curr.y + dy[i];
+
+            // Sprawdzamy granice siatki
+            if (nx >= 0 && nx < SPACE_WIDTH && ny >= 0 && ny < SPACE_HEIGHT) {
+
+                int idx = ny * SPACE_WIDTH + nx;
+
+                // WARUNEK ZALEWANIA:
+                // 1. obstacles[ny][nx] == 0 -> To jest ląd (nie granica, nie ocean)
+                // 2. conditions[idx].population == 0 -> Jeszcze tu nie byliśmy (puste pole)
+
+                if (obstacles[ny][nx] == 0 && conditions[idx].population == 0.0f) {
+
+                    // Kopiujemy warunki stanu do tej komórki siatki
+                    conditions[idx] = condToApply;
+
+                    // Dodajemy sąsiada do kolejki
+                    q.push({ nx, ny });
+                }
+            }
+        }
+    }
 }
 
 void Simulation::initButtons() {
@@ -428,12 +477,18 @@ void Simulation::draw()
                     window.draw(cell);
                 }
             }
+            //rysowanie granic
+            if (obstacles[y][x] == 1) {
+                float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
+                float centerY = 20 + y * cellSize + cellSize / 2.0f;
+                sf::CircleShape cell(cellSize / 2.3f);
+                cell.setPosition({ centerX - cellSize / 2.3f, centerY - cellSize / 2.3f });
+                cell.setFillColor(sf::Color(0, 0, 0));
+                window.draw(cell);
+            }
         }
     }
-    //rysowanie granic
-    for (int i = 0; i < borderElements.size(); ++i) {
-        window.draw(borderElements[i]);
-    }
+    
 
     /*for (int y = 0; y <= SPACE_HEIGHT; y++)
     {
@@ -500,6 +555,8 @@ void Simulation::loadStatesFromFile(std::string fName){
             
             std::vector<sf::Vector2f> cityPoint = {{gridX, gridY}};
             addState(stateName, cityPoint, population, 20.0f, CITY);
+            addConditions(states.back());
+
         } 
         catch(std::exception& e) {
             std::cout << "Blad! " << std::endl;

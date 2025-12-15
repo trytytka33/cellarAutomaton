@@ -65,9 +65,13 @@ std::vector<std::vector<int>> LoadMap::initObstacles(int width, int height) {
 						isObstacle = 2;
 						break;
 					}
+					else if (pixel.r < 200 && pixel.r > 30 && pixel.a != 0) {
+						isObstacle = 3;
+						break;
+					}
 
 				}
-				if (isObstacle == 1 || isObstacle == 2) break;
+				if (isObstacle == 1 || isObstacle == 2 || isObstacle == 3) break;
 			}
 			tempGrid[y][x] = isObstacle;
 		}

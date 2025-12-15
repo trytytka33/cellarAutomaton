@@ -2,6 +2,7 @@
 #define SIMULATION_H
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <queue>
 #include <string>
 #include <cstdlib>
 #include <ctime>
@@ -26,20 +27,23 @@ enum Terrain {
     FOREST,
     LAKE
 };
-class Conditions {          // new
+class Conditions { 
+public:// new
     float population;
     float avgTemperature;
     Terrain terrain;
-    public: 
         Conditions(float p, float temp, Terrain terr): population(p), avgTemperature(temp), terrain(terr){}
         Conditions(): population(0), avgTemperature(20), terrain(CITY) {}
+        
 };
 class State {
     std::string stateName;
     std::vector<sf::Vector2f> points;
     Conditions conditions;
     public:
-        State(std::string name, std::vector<sf::Vector2f> borderPoints, Conditions conds): stateName(name), points(borderPoints), conditions(conds) {};
+        State(std::string name, std::vector<sf::Vector2f> borderPoints, Conditions conds): stateName(name), points(borderPoints), conditions(conds) {
+            
+        };
     const std::string& getName() const { return stateName; }
     const std::vector<sf::Vector2f>& getPoints() const { return points; }
     const Conditions& getConditions() const { return conditions; }
@@ -90,6 +94,7 @@ public:
     void loadStatesFromFile(std::string fName);
      void drawCities();  // new
     void addState(const std::string& name, const std::vector<sf::Vector2f>& points, float population, float avgTemperature, Terrain terrain);
+    void addConditions(const State& state);
     // bool loadMapFromFile(const std::string& filename); ???
     void onStartStop();
     void onClear();
