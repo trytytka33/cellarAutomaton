@@ -46,6 +46,8 @@ Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT })
         // inicjalizacja granic
         obstacles = map.initObstacles(SPACE_WIDTH, SPACE_HEIGHT);
 
+        toTerrain = { {"CITY", CITY}, {"FOREST", FOREST}, {"MOUNTAINS", MOUNTAINS}, {"DESERT", DESERT}, {"LAKE", LAKE} };
+
         initButtons();
         loadStatesFromFile("states-data.txt");
     
@@ -112,6 +114,9 @@ void Simulation::addConditions(const State& state) {
 
                     // Dodajemy sąsiada do kolejki
                     q.push({ nx, ny });
+                }
+                else if (obstacles[ny][nx] == 3) {
+                    conditions[idx] = condToApply;
                 }
             }
         }
@@ -206,7 +211,7 @@ void Simulation::updateWindowDimensions()
 
 void Simulation::toggleCell(int x, int y)
 {
-    if (x >= 0 && x < SPACE_WIDTH && y >= 0 && y < SPACE_HEIGHT && !obstacles[y][x])
+    if (x >= 0 && x < SPACE_WIDTH && y >= 0 && y < SPACE_HEIGHT && (obstacles[y][x] == 0 || obstacles[y][x] == 3))
     {
         grid[y][x] = !grid[y][x];
     }
@@ -308,7 +313,7 @@ void Simulation::handleInput()
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             int gridX = static_cast<int>((mousePos.x - gridOffsetX) / cellSize);
             int gridY = static_cast<int>((mousePos.y - 20) / cellSize);
-            if (gridY >= 0 && gridY < SPACE_HEIGHT && gridX >= 0 && gridX < SPACE_WIDTH && !obstacles[gridY][gridX])
+            if (gridY >= 0 && gridY < SPACE_HEIGHT && gridX >= 0 && gridX < SPACE_WIDTH)
             {
                 toggleCell(gridX, gridY);
             }
@@ -320,7 +325,7 @@ void Simulation::handleInput()
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         int gridX = static_cast<int>((mousePos.x - gridOffsetX) / cellSize);
         int gridY = static_cast<int>((mousePos.y - 20) / cellSize);
-        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT && obstacles[gridY][gridX] == 0)
+        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT)
         {
             grid[gridY][gridX] = true;
         }
@@ -354,7 +359,7 @@ int Simulation::countNeighbors(int x, int y)
             }
             if (nowy_x >= 0 && nowy_x < SPACE_WIDTH && nowy_y >= 0 && nowy_y < SPACE_HEIGHT)
             {
-                if (grid[nowy_y][nowy_x] && obstacles[nowy_y][nowy_x] == 0)
+                if (grid[nowy_y][nowy_x] && (obstacles[nowy_y][nowy_x] == 0 || obstacles[nowy_y][nowy_x] == 3))
                     count++;
             }
         }
@@ -538,23 +543,28 @@ void Simulation::loadStatesFromFile(std::string fName){
 
     while(std::getline(file,line)) {
         std::stringstream ss(line);
-        std::string stateName, cityName, wsp_x, wsp_y, pop;
+        std::string stateName, cityName, wsp_x, wsp_y, pop, avgT, ter;
 
         std::getline(ss,stateName, ',');
         std::getline(ss, cityName, ',');
         std::getline(ss,wsp_x, ',');
         std::getline(ss,wsp_y, ',');
         std::getline(ss,pop, ',');
+        std::getline(ss, avgT, ',');
+        std::getline(ss, ter, ',');
+
         try{
             float x = std::stof(wsp_x);
             float y = std::stof(wsp_y);
             float population = std::stof(pop);
+            float avgTemp = std::stof(avgT);
+            Terrain terrain = toTerrain[ter];
             
             float gridX = (x / 1280.0f) * SPACE_WIDTH;
             float gridY = (y / 792.0f) * SPACE_HEIGHT;
             
             std::vector<sf::Vector2f> cityPoint = {{gridX, gridY}};
-            addState(stateName, cityPoint, population, 20.0f, CITY);
+            addState(stateName, cityPoint, population, avgTemp, terrain);
             addConditions(states.back());
 
         } 

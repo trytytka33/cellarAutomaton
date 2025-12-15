@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 #include <string>
 #include <cstdlib>
 #include <ctime>
@@ -23,7 +24,7 @@ enum Rule {
 enum Terrain {
     CITY,
     MOUNTAINS,
-    DESSERT,
+    DESERT,
     FOREST,
     LAKE
 };
@@ -33,7 +34,7 @@ public:// new
     float avgTemperature;
     Terrain terrain;
         Conditions(float p, float temp, Terrain terr): population(p), avgTemperature(temp), terrain(terr){}
-        Conditions(): population(0), avgTemperature(20), terrain(CITY) {}
+        Conditions(): population(0.0f), avgTemperature(0.0f), terrain(CITY) {}
         
 };
 class State {
@@ -56,6 +57,7 @@ private:
     std::vector<std::vector<int>> obstacles;
     std::vector<Conditions> conditions;
     std::vector<sf::CircleShape> borderElements;
+    std::unordered_map<std::string, Terrain> toTerrain;
     bool isRunning;
     sf::Clock clock;
     float updateInterval;
