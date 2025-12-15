@@ -64,29 +64,23 @@ void Simulation::addConditions(const State& state) {
     if (state.getPoints().empty()) return;
     sf::Vector2f seed = state.getPoints()[0];
 
-    // Pobieramy warunki, które mamy przypisać temu obszarowi
     Conditions condToApply = state.getConditions();
 
     int startX = static_cast<int>(seed.x);
     int startY = static_cast<int>(seed.y);
 
-    // Zabezpieczenia: czy punkt jest na mapie?
     if (startX < 0 || startX >= SPACE_WIDTH || startY < 0 || startY >= SPACE_HEIGHT) return;
 
-    // Czy nie zaczynamy na granicy? (1 = granica, 2 = ocean/poza mapą)
-    if (obstacles[startY][startX] != 0) return;
+    if (obstacles[startY][startX] != 0 && obstacles[startY][startX] != 3) return;
 
-    // Obliczamy indeks w tablicy 1D
     int startIndex = startY * SPACE_WIDTH + startX;
 
     // --- ALGORYTM BFS (Flood Fill) ---
     std::queue<sf::Vector2i> q;
     q.push({ startX, startY });
 
-    // Przypisujemy warunki w punkcie startowym
     conditions[startIndex] = condToApply;
 
-    // Wektory przesunięć (Góra, Dół, Prawo, Lewo)
     int dx[] = { 0, 0, 1, -1 };
     int dy[] = { 1, -1, 0, 0 };
 
@@ -98,21 +92,14 @@ void Simulation::addConditions(const State& state) {
             int nx = curr.x + dx[i];
             int ny = curr.y + dy[i];
 
-            // Sprawdzamy granice siatki
             if (nx >= 0 && nx < SPACE_WIDTH && ny >= 0 && ny < SPACE_HEIGHT) {
 
                 int idx = ny * SPACE_WIDTH + nx;
 
-                // WARUNEK ZALEWANIA:
-                // 1. obstacles[ny][nx] == 0 -> To jest ląd (nie granica, nie ocean)
-                // 2. conditions[idx].population == 0 -> Jeszcze tu nie byliśmy (puste pole)
-
                 if (obstacles[ny][nx] == 0 && conditions[idx].population == 0.0f) {
 
-                    // Kopiujemy warunki stanu do tej komórki siatki
                     conditions[idx] = condToApply;
 
-                    // Dodajemy sąsiada do kolejki
                     q.push({ nx, ny });
                 }
                 else if (obstacles[ny][nx] == 3) {
@@ -313,7 +300,7 @@ void Simulation::handleInput()
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             int gridX = static_cast<int>((mousePos.x - gridOffsetX) / cellSize);
             int gridY = static_cast<int>((mousePos.y - 20) / cellSize);
-            if (gridY >= 0 && gridY < SPACE_HEIGHT && gridX >= 0 && gridX < SPACE_WIDTH)
+            if (gridY >= 0 && gridY < SPACE_HEIGHT && gridX >= 0 && gridX < SPACE_WIDTH && (obstacles[gridY][gridX] == 0 || obstacles[gridY][gridX] == 3))
             {
                 toggleCell(gridX, gridY);
             }
@@ -325,75 +312,68 @@ void Simulation::handleInput()
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         int gridX = static_cast<int>((mousePos.x - gridOffsetX) / cellSize);
         int gridY = static_cast<int>((mousePos.y - 20) / cellSize);
-        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT)
+        if (gridX >= 0 && gridX < SPACE_WIDTH && gridY >= 0 && gridY < SPACE_HEIGHT && (obstacles[gridY][gridX] == 0 || obstacles[gridY][gridX] == 3))
         {
             grid[gridY][gridX] = true;
         }
     }
 }
 
-int Simulation::countNeighbors(int x, int y)
-{
-    int count = 0;
-    for (int dy = -1; dy <= 1; dy++)
-    {
-        for (int dx = -1; dx <= 1; dx++)
-        {
-            if (dx == 0 && dy == 0)
-                continue;
-
-            int nowy_x = x + dx;
-            int nowy_y = y + dy;
-
-            if (boundryType == PERIODIC)
-            {
-                nowy_x = ((nowy_x % SPACE_WIDTH) + SPACE_WIDTH) % SPACE_WIDTH;
-                nowy_y = ((nowy_y % SPACE_HEIGHT) + SPACE_HEIGHT) % SPACE_HEIGHT;
-            }
-            else
-            {
-                if (nowy_x < 0 || nowy_x >= SPACE_WIDTH || nowy_y < 0 || nowy_y >= SPACE_HEIGHT)
-                {
-                    continue;
-                }
-            }
-            if (nowy_x >= 0 && nowy_x < SPACE_WIDTH && nowy_y >= 0 && nowy_y < SPACE_HEIGHT)
-            {
-                if (grid[nowy_y][nowy_x] && (obstacles[nowy_y][nowy_x] == 0 || obstacles[nowy_y][nowy_x] == 3))
-                    count++;
-            }
-        }
-    }
-    return count;
-}
-
 void Simulation::updateGameOfLife()
 {
     std::vector<std::vector<bool>> newGrid = grid;
 
-    for (int y = 0; y < SPACE_HEIGHT; y++)
+    for (int y = 1; y < SPACE_HEIGHT - 1; y++)
     {
-        for (int x = 0; x < SPACE_WIDTH; x++)
+        for (int x = 1; x < SPACE_WIDTH - 1; x++)
         {
-            int neighbors = countNeighbors(x, y);
-            bool currentState = grid[y][x];
+            if (grid[y][x] == false) continue;
 
-            if (rule == CONWAY)
+            for (int dy = -1; dy <= 1; dy++)
             {
-                if (currentState)
+                for (int dx = -1; dx <= 1; dx++)
                 {
-                    newGrid[y][x] = (neighbors == 2 || neighbors == 3);
-                }
-                else
-                {
-                    newGrid[y][x] = (neighbors == 3);
+                    if (dx == 0 && dy == 0)
+                        continue;
+
+                    int nowy_x = x + dx;
+                    int nowy_y = y + dy;
+
+                    if (obstacles[nowy_y][nowy_x] == 1 || obstacles[nowy_y][nowy_x] == 2)
+                        continue;
+
+                    Terrain terr = conditions[y * SPACE_WIDTH + x].terrain;
+                    float terrMod = 0.0f;
+                    if (terr == MOUNTAINS) {
+                        terrMod = 10.0f;
+                    }
+                    else if (terr == CITY) {
+                        terrMod = 30.0f;
+                    }
+                    else if (terr == FOREST) {
+                        terrMod = 15.0;
+                    }
+                    else if (terr == DESERT) {
+                        terrMod = 5.0f;
+                    }
+                    else if (terr == LAKE) {
+                        terrMod = 20.0f;
+                    }
+
+                    float chance = (conditions[y * SPACE_WIDTH + x].population * 2.7f + conditions[y * SPACE_WIDTH + x].avgTemperature + terrMod) / 100.0f;
+
+                    float random = rand() % 100;
+
+                    if (chance > random) {
+                        newGrid[nowy_y][nowy_x] = true;
+                    }
+                   
                 }
             }
         }
     }
 
     grid = newGrid;
-    nrCykluSymulacji++;
 }
 
 void Simulation::update()
@@ -412,8 +392,6 @@ void Simulation::update()
 void Simulation::draw()
 {
     window.clear(sf::Color(245, 245, 250));
-
-    //window.draw(map.getBackground());
   
     sf::RectangleShape sidebar({static_cast<float>(sidebarWidth), static_cast<float>(windowHeight)});
     sidebar.setPosition({0, 0});
@@ -424,16 +402,11 @@ void Simulation::draw()
         button.draw(window);
     }
 
-    //sf::RectangleShape gridBackground({SPACE_WIDTH * cellSize, SPACE_HEIGHT * cellSize});
-    //gridBackground.setPosition({gridOffsetX, 20});
-    //gridBackground.setFillColor(sf::Color(255, 255, 255));
-    //window.draw(gridBackground);
-
     for (int y = 0; y < SPACE_HEIGHT; y++)
     {
         for (int x = 0; x < SPACE_WIDTH; x++)
         {
-            if (grid[y][x] && obstacles[y][x] == 0)
+            if (grid[y][x] && (obstacles[y][x] == 0 || obstacles[y][x]))
             {
                 int hash = (x * 73 + y * 31) % 5;
                 float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
@@ -494,22 +467,6 @@ void Simulation::draw()
         }
     }
     
-
-    /*for (int y = 0; y <= SPACE_HEIGHT; y++)
-    {
-        sf::RectangleShape line({SPACE_WIDTH * cellSize, 1});
-        line.setPosition({gridOffsetX, 20 + y * cellSize});
-        line.setFillColor(sf::Color(220, 220, 225));
-        window.draw(line);
-    }
-    
-    for (int x = 0; x <= SPACE_WIDTH; x++)
-    {
-        sf::RectangleShape line({1, SPACE_HEIGHT * cellSize});
-        line.setPosition({gridOffsetX + x * cellSize, 20});
-        line.setFillColor(sf::Color(220, 220, 225));
-        window.draw(line);
-    }*/
     drawCities();
     window.display();
 }
