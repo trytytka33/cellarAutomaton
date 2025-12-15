@@ -362,9 +362,11 @@ void Simulation::updateGameOfLife()
 
                     float chance = (conditions[y * SPACE_WIDTH + x].population * 2.7f + conditions[y * SPACE_WIDTH + x].avgTemperature + terrMod) / 100.0f;
 
-                    float random = rand() % 100;
+                    static std::random_device rd;
+                    static std::mt19937 generator(rd());
+                    std::uniform_real_distribution<float> distribution(0.0f, 100.0f);
 
-                    if (chance > random) {
+                    if (distribution(generator) <= chance) {
                         newGrid[nowy_y][nowy_x] = true;
                     }
                    
@@ -406,7 +408,7 @@ void Simulation::draw()
     {
         for (int x = 0; x < SPACE_WIDTH; x++)
         {
-            if (grid[y][x] && (obstacles[y][x] == 0 || obstacles[y][x]))
+            if (grid[y][x] && (obstacles[y][x] == 0 || obstacles[y][x] == 3))
             {
                 int hash = (x * 73 + y * 31) % 5;
                 float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
