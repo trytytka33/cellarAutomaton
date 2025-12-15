@@ -7,10 +7,9 @@
 #include <ctime>
 #include <functional>
 #include <algorithm>
-
-#include"LoadMap.h"
+#include "LoadMap.h"
 #include "config.h"
-#include"Button.h"
+#include "Button.h"
 
 enum BoundryType {
     PERIODIC
@@ -27,11 +26,23 @@ enum Terrain {
     FOREST,
     LAKE
 };
-
-class Conditions {
+class Conditions {          // new
     float population;
     float avgTemperature;
     Terrain terrain;
+    public: 
+        Conditions(float p, float temp, Terrain terr): population(p), avgTemperature(temp), terrain(terr){}
+        Conditions(): population(0), avgTemperature(20), terrain(CITY) {}
+};
+class State {
+    std::string stateName;
+    std::vector<sf::Vector2f> points;
+    Conditions conditions;
+    public:
+        State(std::string name, std::vector<sf::Vector2f> borderPoints, Conditions conds): stateName(name), points(borderPoints), conditions(conds) {};
+    const std::string& getName() const { return stateName; }
+    const std::vector<sf::Vector2f>& getPoints() const { return points; }
+    const Conditions& getConditions() const { return conditions; }
 };
 
 class Simulation {
@@ -56,9 +67,10 @@ private:
     float gridOffsetX;
     std::vector<Button> buttons;
     std::string currentMapName;
-    int panelHeight;  // DODANE
-    float gridDisplayHeight;  // DODANE
+    int panelHeight;  
+    float gridDisplayHeight;  
     LoadMap map;
+    std::vector<State> states; // new 
 public:
     Simulation();
     void setCellAlive(int x, int y, bool alive);
@@ -66,7 +78,7 @@ public:
     void clearGrid();
     void clearObstacles();
     void setRandom(int density);
-    void setBlock(int startX, int startY);  // DODANE
+    void setBlock(int startX, int startY);
     void handleInput();
     int countNeighbors(int x, int y);
     void updateGameOfLife();
@@ -74,9 +86,11 @@ public:
     void draw();
     void run();
     void initButtons();
-    void updateWindowDimensions();  // DODANE
+    void updateWindowDimensions(); 
+    void loadStatesFromFile(std::string fName);
+     void drawCities();  // new
+    void addState(const std::string& name, const std::vector<sf::Vector2f>& points, float population, float avgTemperature, Terrain terrain);
     // bool loadMapFromFile(const std::string& filename); ???
-    
     void onStartStop();
     void onClear();
     void onMapIsrael();

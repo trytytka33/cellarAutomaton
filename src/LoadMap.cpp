@@ -14,6 +14,7 @@ LoadMap::LoadMap(int width, int height) : background(map) {
 	background.setTexture(map, true);
 	background.setScale({0.5f, 0.5f});
 	background.setPosition({(float)width/8, (float)height/8});
+
 }
 
 // funkcja do inicjalizacji granicy macierzy
@@ -55,7 +56,8 @@ std::vector<std::vector<int>> LoadMap::initObstacles(int width, int height) {
                 for (int px = startX; px < endX; px++) {
 					sf::Color pixel = mapImage.getPixel({(unsigned int)px, (unsigned int)py});
 					//if (pixel.a == 0) { // Opcja 1, tylko przezroczyste sa granica
-					if (pixel.r <30 && pixel.a != 0) { // Opcja 2, tylko granice bez przezroczystych
+					
+					if (pixel.r <30 && pixel.a != 0) { 
                         isObstacle = 1;
                         break;
 					}

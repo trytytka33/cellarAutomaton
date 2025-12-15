@@ -1,4 +1,4 @@
-#include"Button.h"
+#include "Button.h"
 
 Button::Button(sf::Vector2f pos, sf::Vector2f size, const std::string& label,
     sf::Font& font, std::function<void()> callback)

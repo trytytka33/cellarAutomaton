@@ -2,13 +2,16 @@
 #include "config.h"
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <fstream>
+#include <sstream>
 
 const int SPACE_WIDTH = 250;
 const int SPACE_HEIGHT = 200;
 const int CELL_SIZE = 5;
 const int SIDEBAR_WIDTH = 140;
-const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE; // + SIDEBAR_WIDTH + 50;
-const int WINDOW_HEIGHT = SPACE_HEIGHT * CELL_SIZE; // + 40;
+const int WINDOW_WIDTH = SPACE_WIDTH * CELL_SIZE + 150; // + SIDEBAR_WIDTH + 50;
+const int WINDOW_HEIGHT = SPACE_HEIGHT * CELL_SIZE + 80; // + 40;
 
 Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }), "Game of Life - Virus Spread", sf::Style::Default),
         grid(SPACE_HEIGHT, std::vector<bool>(SPACE_WIDTH, false)),
@@ -21,11 +24,12 @@ Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT })
         sidebarWidth(SIDEBAR_WIDTH),
         windowWidth(WINDOW_WIDTH),
         windowHeight(WINDOW_HEIGHT),
-        map(1280, 792),
+        map(1280, 792), // tutaj
         obstacles(SPACE_HEIGHT, std::vector<int>(SPACE_WIDTH, 0)),
-        conditions(SPACE_HEIGHT * SPACE_WIDTH)
+        conditions(SPACE_HEIGHT * SPACE_WIDTH),
+        states(std::vector<State>())
      {
-          window.setFramerateLimit(60);
+        window.setFramerateLimit(60);
         srand(static_cast<unsigned>(time(nullptr)));
         // ???
         gridDisplayHeight = windowHeight;
@@ -54,8 +58,15 @@ Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT })
                 }
             }
         }
-
         initButtons();
+        loadStatesFromFile("states-data.txt");
+    
+}
+
+void Simulation::addState(const std::string& name, const std::vector<sf::Vector2f>& points, float population, float avgTemperature, Terrain terrain){
+    Conditions cond(population, avgTemperature, terrain);
+    State state(name, points, cond);
+    states.push_back(state);
 }
 
 void Simulation::initButtons() {
@@ -419,7 +430,6 @@ void Simulation::draw()
             }
         }
     }
-
     //rysowanie granic
     for (int i = 0; i < borderElements.size(); ++i) {
         window.draw(borderElements[i]);
@@ -440,12 +450,9 @@ void Simulation::draw()
         line.setFillColor(sf::Color(220, 220, 225));
         window.draw(line);
     }*/
-
+    drawCities();
     window.display();
 }
-
-
-
 
 void Simulation::run()
 {
@@ -462,5 +469,68 @@ void Simulation::setCellAlive(int x, int y, bool alive)
     if (x >= 0 && x < SPACE_WIDTH && y >= 0 && y < SPACE_HEIGHT)
     {
         grid[y][x] = alive;
+    }
+}
+
+void Simulation::loadStatesFromFile(std::string fName){
+    std::ifstream file(fName);
+    if(!file.is_open()){
+        std::cerr << "Cannot read date from file! " << std::endl;
+        return;
+    }
+    std::string line;
+    std::getline(file, line);
+
+    while(std::getline(file,line)) {
+        std::stringstream ss(line);
+        std::string stateName, cityName, wsp_x, wsp_y, pop;
+
+        std::getline(ss,stateName, ',');
+        std::getline(ss, cityName, ',');
+        std::getline(ss,wsp_x, ',');
+        std::getline(ss,wsp_y, ',');
+        std::getline(ss,pop, ',');
+        try{
+            float x = std::stof(wsp_x);
+            float y = std::stof(wsp_y);
+            float population = std::stof(pop);
+            
+            float gridX = (x / 1280.0f) * SPACE_WIDTH;
+            float gridY = (y / 792.0f) * SPACE_HEIGHT;
+            
+            std::vector<sf::Vector2f> cityPoint = {{gridX, gridY}};
+            addState(stateName, cityPoint, population, 20.0f, CITY);
+        } 
+        catch(std::exception& e) {
+            std::cout << "Blad! " << std::endl;
+        }
+    }
+    file.close();
+}
+void Simulation::drawCities() {
+    for (const auto& state : states) {
+        if (state.getPoints().empty()) continue;
+        
+        sf::Vector2f gridPos = state.getPoints()[0];
+        float screenX = gridOffsetX + gridPos.x * cellSize;
+        float screenY = 20 + gridPos.y * cellSize;
+        
+    
+        sf::CircleShape marker(3);
+        marker.setPosition({screenX - 5, screenY - 5});
+        marker.setFillColor(sf::Color::Red);
+        marker.setOutlineColor(sf::Color::White);
+        marker.setOutlineThickness(2);
+        window.draw(marker);
+        
+    
+        sf::Text text(font);
+        text.setString(state.getName());
+        text.setCharacterSize(14);
+        text.setFillColor(sf::Color::Black);
+        text.setOutlineColor(sf::Color::White);
+        text.setOutlineThickness(1);
+        text.setPosition({screenX + 10, screenY - 7});
+        window.draw(text);
     }
 }
