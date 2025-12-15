@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 const int SPACE_WIDTH = 250;
 const int SPACE_HEIGHT = 170;
@@ -27,7 +28,9 @@ Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT })
         map(1280, 792), // tutaj
         obstacles(SPACE_HEIGHT, std::vector<int>(SPACE_WIDTH, 0)),
         conditions(SPACE_HEIGHT * SPACE_WIDTH),
-        states(std::vector<State>())
+        states(std::vector<State>()),
+        statsText(font),
+        aliveCells(0)
      {
         window.setFramerateLimit(60);
         srand(static_cast<unsigned>(time(nullptr)));
@@ -49,6 +52,7 @@ Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT })
         toTerrain = { {"CITY", CITY}, {"FOREST", FOREST}, {"MOUNTAINS", MOUNTAINS}, {"DESERT", DESERT}, {"LAKE", LAKE} };
 
         initButtons();
+        initStats();
         loadStatesFromFile("states-data.txt");
     
 }
@@ -109,6 +113,35 @@ void Simulation::addConditions(const State& state) {
         }
     }
 }
+
+void Simulation::initStats() {
+    // Konfiguracja panelu
+    statsPanel.setSize({static_cast<float>(sidebarWidth - 20), 150.0f});
+    statsPanel.setFillColor(sf::Color(220, 220, 230));
+    statsPanel.setOutlineColor(sf::Color(180, 180, 190));
+    statsPanel.setOutlineThickness(2);
+    
+    float panelY = 30 + 7 * (42 + 12) + 20;
+    statsPanel.setPosition({10, panelY});
+    
+    // Konfiguracja tekstu - TUTAJ ustawiamy font (tak jak Button w konstruktorze)
+    statsText.setFont(font);
+    statsText.setCharacterSize(12);
+    statsText.setFillColor(sf::Color::Black);
+    statsText.setPosition({20, panelY + 10});
+}
+
+void Simulation::updateStats() {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(3) << updateInterval;
+    std::string stats = "STATYSTYKI\n\n";
+    stats += "Cykl: " + std::to_string(nrCykluSymulacji) + "\n";
+    stats += "Interwal: " + oss.str() + "s\n";
+    stats += "Zywe: " + std::to_string(aliveCells);
+    
+    statsText.setString(stats);
+}
+
 
 void Simulation::initButtons() {
     float buttonWidth = 100;
@@ -194,6 +227,8 @@ void Simulation::updateWindowDimensions()
     float cellHeightSize = static_cast<float>(gridDisplayHeight - 40) / SPACE_HEIGHT;
     cellSize = std::min(cellWidthSize, cellHeightSize);
     gridOffsetX = sidebarWidth + 20;
+
+
 }
 
 void Simulation::toggleCell(int x, int y)
@@ -322,7 +357,7 @@ void Simulation::handleInput()
 void Simulation::updateGameOfLife()
 {
     std::vector<std::vector<bool>> newGrid = grid;
-
+    nrCykluSymulacji++;
     for (int y = 1; y < SPACE_HEIGHT - 1; y++)
     {
         for (int x = 1; x < SPACE_WIDTH - 1; x++)
@@ -389,12 +424,13 @@ void Simulation::update()
     for (auto& button : buttons) {
         button.update();
     }
+    updateStats();
 }
 
 void Simulation::draw()
 {
     window.clear(sf::Color(245, 245, 250));
-  
+    aliveCells = 0;
     sf::RectangleShape sidebar({static_cast<float>(sidebarWidth), static_cast<float>(windowHeight)});
     sidebar.setPosition({0, 0});
     sidebar.setFillColor(sf::Color(230, 230, 235));
@@ -403,6 +439,7 @@ void Simulation::draw()
     for (auto& button : buttons) {
         button.draw(window);
     }
+    
 
     for (int y = 0; y < SPACE_HEIGHT; y++)
     {
@@ -410,6 +447,7 @@ void Simulation::draw()
         {
             if (grid[y][x] && (obstacles[y][x] == 0 || obstacles[y][x] == 3))
             {
+                aliveCells++;
                 int hash = (x * 73 + y * 31) % 5;
                 float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
                 float centerY = 20 + y * cellSize + cellSize / 2.0f;
@@ -466,9 +504,13 @@ void Simulation::draw()
                 cell.setFillColor(sf::Color(0, 0, 0));
                 window.draw(cell);
             }
+
+        
         }
     }
-    
+    // update statystyki
+    window.draw(statsPanel);
+    window.draw(statsText);
     drawCities();
     window.display();
 }
