@@ -34,11 +34,9 @@ Simulation::Simulation() : window(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT })
      {
         window.setFramerateLimit(60);
         srand(static_cast<unsigned>(time(nullptr)));
-        // ???
         gridDisplayHeight = windowHeight;
         cellSize = CELL_SIZE;
         gridOffsetX = SIDEBAR_WIDTH + 20;
-        // ???
         if (!font.openFromFile(fontPathArial)) {
             if (!font.openFromFile(fontPathHelvetica)) {
                 if (!font.openFromFile("arial.ttf")) {
@@ -79,7 +77,7 @@ void Simulation::addConditions(const State& state) {
 
     int startIndex = startY * SPACE_WIDTH + startX;
 
-    // --- ALGORYTM BFS (Flood Fill) ---
+    //  ALGORYTM BFS (Flood Fill) 
     std::queue<sf::Vector2i> q;
     q.push({ startX, startY });
 
@@ -115,7 +113,6 @@ void Simulation::addConditions(const State& state) {
 }
 
 void Simulation::initStats() {
-    // Konfiguracja panelu
     statsPanel.setSize({static_cast<float>(sidebarWidth - 20), 150.0f});
     statsPanel.setFillColor(sf::Color(220, 220, 230));
     statsPanel.setOutlineColor(sf::Color(180, 180, 190));
@@ -427,10 +424,20 @@ void Simulation::update()
     updateStats();
 }
 
+std::vector<sf::CircleShape> generateShapes(float cellSize) {
+    std::vector<sf::CircleShape> shapes;
+    for(int i = 0; i < 25; i++) {
+        float radius = cellSize / (1.5f + (i*i) % 12);
+        sf::CircleShape cell(radius);
+        shapes.push_back(cell);
+    }
+    return shapes;
+}
+
 void Simulation::draw()
 {
     window.clear(sf::Color(245, 245, 250));
-    aliveCells = 0;
+  
     sf::RectangleShape sidebar({static_cast<float>(sidebarWidth), static_cast<float>(windowHeight)});
     sidebar.setPosition({0, 0});
     sidebar.setFillColor(sf::Color(230, 230, 235));
@@ -439,7 +446,8 @@ void Simulation::draw()
     for (auto& button : buttons) {
         button.draw(window);
     }
-    
+
+    std::vector<sf::CircleShape> shapes = generateShapes(cellSize);
 
     for (int y = 0; y < SPACE_HEIGHT; y++)
     {
@@ -447,54 +455,24 @@ void Simulation::draw()
         {
             if (grid[y][x] && (obstacles[y][x] == 0 || obstacles[y][x] == 3))
             {
-                aliveCells++;
-                int hash = (x * 73 + y * 31) % 5;
                 float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
                 float centerY = 20 + y * cellSize + cellSize / 2.0f;
+
+                int mix = (x * y ) ^ (x + y);
+                int shapeIndex = mix % shapes.size();
+                sf::CircleShape cell = shapes[shapeIndex];
                 
-                if (hash == 0)
-                {
-                    sf::CircleShape cell(cellSize / 2.3f);
-                    cell.setPosition({centerX - cellSize / 2.3f, centerY - cellSize / 2.3f});
-                    cell.setFillColor(sf::Color(247, 101, 101));
-                    window.draw(cell);
-                } 
-                // ten sie zle wyswietla dla (x,0)
-                else if (hash == 1)
-                 {
-                     sf::CircleShape cell(cellSize / 2.5f, 6);
-                     cell.setPosition({centerX - cellSize / 2.5f, centerY - cellSize / 2.5f});
-                     cell.setFillColor(sf::Color(107, 17, 17));
-                     cell.setRotation(sf::degrees(90));
-                     window.draw(cell);
-                 } else if (hash == 2)
-                {
-                    sf::ConvexShape cell;
-                    cell.setPointCount(5);
-                    float size = cellSize / 2.0f;
-         
-                    cell.setPoint(0, sf::Vector2f(centerX, centerY - size));
-                    cell.setPoint(1, sf::Vector2f(centerX + size * 0.95f, centerY - size * 0.31f));
-                    cell.setPoint(2, sf::Vector2f(centerX + size * 0.59f, centerY + size * 0.81f));
-                    cell.setPoint(3, sf::Vector2f(centerX - size * 0.59f, centerY + size * 0.81f));
-                    cell.setPoint(4, sf::Vector2f(centerX - size * 0.95f, centerY - size * 0.31f));
-                    cell.setFillColor(sf::Color(139, 0, 0));
-                    window.draw(cell);
-                } else if (hash == 3)
-                {
-                    sf::CircleShape cell(cellSize / 2.6f, 3);
-                    cell.setPosition({centerX - cellSize / 2.4f, centerY - cellSize / 2.4f});
-                    cell.setFillColor(sf::Color(224, 11, 11));
-                    window.draw(cell);
-                } 
-                else
-                {
-                    sf::CircleShape cell(cellSize / 2.6f, 4);
-                    cell.setPosition({centerX - cellSize / 2.6f, centerY - cellSize / 2.6f});
-                    cell.setFillColor(sf::Color(250, 132, 132));
-                    window.draw(cell);
-                }
+                float radius = cell.getRadius();
+                cell.setPosition({centerX - radius, centerY - radius});
+
+                int r = (mix) % 80;
+                int g = 100 + (mix) % 156;
+                int b = (mix * 2) % 120;
+                cell.setFillColor(sf::Color(r, g, b));
+
+                window.draw(cell);
             }
+            
             //rysowanie granic
             if (obstacles[y][x] == 1) {
                 float centerX = gridOffsetX + x * cellSize + cellSize / 2.0f;
@@ -504,8 +482,6 @@ void Simulation::draw()
                 cell.setFillColor(sf::Color(0, 0, 0));
                 window.draw(cell);
             }
-
-        
         }
     }
     // update statystyki

@@ -31,7 +31,7 @@ enum Terrain {
     LAKE
 };
 class Conditions { 
-public:// new
+public:
     float population;
     float avgTemperature;
     Terrain terrain;
@@ -45,11 +45,10 @@ class State {
     Conditions conditions;
     public:
         State(std::string name, std::vector<sf::Vector2f> borderPoints, Conditions conds): stateName(name), points(borderPoints), conditions(conds) {
-            
         };
-    const std::string& getName() const { return stateName; }
-    const std::vector<sf::Vector2f>& getPoints() const { return points; }
-    const Conditions& getConditions() const { return conditions; }
+    const std::string& getName()                    const { return stateName; }
+    const std::vector<sf::Vector2f>& getPoints()    const { return points; }
+    const Conditions& getConditions()               const { return conditions; }
 };
 
 class Simulation {
@@ -80,7 +79,7 @@ private:
     int panelHeight;  
     float gridDisplayHeight;  
     LoadMap map;
-    std::vector<State> states; // new 
+    std::vector<State> states;  
     int aliveCells;
 public:
     Simulation();
@@ -101,10 +100,10 @@ public:
     void initButtons();
     void updateWindowDimensions(); 
     void loadStatesFromFile(std::string fName);
-     void drawCities();  // new
+    void drawCities();  
     void addState(const std::string& name, const std::vector<sf::Vector2f>& points, float population, float avgTemperature, Terrain terrain);
     void addConditions(const State& state);
-    // bool loadMapFromFile(const std::string& filename); ???
+    std::vector<sf::CircleShape> generateShapes(float cellSize);
     void onStartStop();
     void onClear();
     void onMapIsrael();
@@ -118,5 +117,4 @@ public:
     void onSpeedUp();
     void onSlowDown();
 };
-
 #endif
