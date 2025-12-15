@@ -10,7 +10,7 @@ A C++ simulation using SFML that visualizes cellular automaton with cities and o
 
 ## Building
 ```bash
-g++ -std=c++17 main.cpp Simulation.cpp Button.cpp -lsfml-graphics -lsfml-window -lsfml-system -o simulation
+g++ -std=c++17 main.cpp Simulation.cpp Button.cpp LoadMap.cpp -lsfml-graphics -lsfml-window -lsfml-system -o simulation
 ```
 
 ## Running
@@ -35,5 +35,5 @@ Use the sidebar buttons to control the simulation.
 
 - `Simulation.cpp/h` - Main simulation logic
 - `Button.cpp/h` - UI button implementation
-- 'LoadMap.cpp/h' - Map loading logic
+- `LoadMap.cpp/h` - Map loading logic
 - `main.cpp` - Entry point
