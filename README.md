@@ -35,5 +35,5 @@ Use the sidebar buttons to control the simulation.
 
 - `Simulation.cpp/h` - Main simulation logic
 - `Button.cpp/h` - UI button implementation
-- LoadMap.cpp/h - Map loading logic
+- 'LoadMap.cpp/h' - Map loading logic
 - `main.cpp` - Entry point
